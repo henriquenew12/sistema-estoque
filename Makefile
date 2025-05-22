@@ -8,4 +8,4 @@ docker-build-backend:
 	docker build -t $(APP)-backend:$(VERSION) ./backend/
 
 docker-run-backend:
-	docker run -p $(PORT):$(PORT) $(APP)-backend:$(VERSION)
+	docker run -d -p ${PORT}:${PORT} --name ${APP}-backend ${APP}-backend:${VERSION}
