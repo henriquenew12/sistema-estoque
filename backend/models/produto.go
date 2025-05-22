@@ -4,7 +4,7 @@ import "sistema-estoque/database"
 
 // Produto representa o modelo do produto
 type Produto struct {
-	ID         uint    `gorm:"primaryKey" json:"id"`
+	ID         uint    `gorm:"primaryKey;autoIncrement" json:"id"`
 	Nome       string  `json:"nome" binding:"required"`
 	Preco      float64 `json:"preco" binding:"required"`
 	Quantidade int     `json:"quantidade" binding:"required"`
