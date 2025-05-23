@@ -102,15 +102,3 @@ function deletarProduto() {
       });
   }
 }
-
-function carregarDashboard() {
-  fetch(`${API}/dashboard`)
-    .then(res => res.json())
-    .then(d => {
-      document.getElementById('total-produtos').textContent = d.total_produtos;
-      document.getElementById('quantidade-total').textContent = d.total_quantidade;
-      document.getElementById('valor-total').textContent = d.valor_total_estoque.toFixed(2);
-      document.getElementById('mais-estoque').textContent = `${d.produto_mais_estoque.nome} (${d.produto_mais_estoque.quantidade})`;
-      document.getElementById('menos-estoque').textContent = `${d.produto_menos_estoque.nome} (${d.produto_menos_estoque.quantidade})`;
-    });
-}
