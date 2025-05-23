@@ -2,68 +2,58 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plataforma de Estoque</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Sistema de Estoque</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Plataforma de Controle de Estoque</h1>
-  </header>
+  <h1>Sistema de Estoque</h1>
 
   <nav>
-    <button class="tab active" data-tab="cadastrar">Cadastrar</button>
-    <button class="tab" data-tab="listar">Listar Todos</button>
-    <button class="tab" data-tab="atualizar">Atualizar</button>
-    <button class="tab" data-tab="deletar">Deletar</button>
+    <button onclick="mostrarSecao('cadastro')">Cadastrar</button>
+    <button onclick="mostrarSecao('listar')">Listar</button>
+    <button onclick="mostrarSecao('atualizar')">Atualizar</button>
+    <button onclick="mostrarSecao('deletar')">Deletar</button>
   </nav>
 
-  <!-- Cadastrar -->
-  <div class="section active" id="cadastrar">
-    <h2>Cadastrar Produto</h2>
-    <form id="formCadastrar">
-      <label for="nome">Nome</label>
-      <input type="text" id="nome" required />
-      <label for="preco">Preço</label>
-      <input type="number" id="preco" step="0.01" required />
-      <label for="quantidade">Quantidade</label>
-      <input type="number" id="quantidade" required />
-      <button type="submit" class="submit">Cadastrar</button>
-      <p id="mensagemCadastrar" class="message"></p>
-    </form>
-  </div>
+  <section id="cadastro" class="secao">
+    <h2>Cadastro de Produto</h2>
+    <input type="text" id="nome" placeholder="Nome" />
+    <input type="number" id="preco" placeholder="Preço" step="0.01" />
+    <input type="number" id="quantidade" placeholder="Quantidade" />
+    <button onclick="cadastrarProduto()">Cadastrar</button>
+    <p id="mensagemCadastro" class="mensagem"></p>
+  </section>
 
-  <!-- Listar Todos -->
-  <div class="section" id="listar">
-    <h2>Todos os Produtos</h2>
-    <button class="submit" onclick="listarProdutos()">Atualizar Lista</button>
-    <div id="tabelaProdutos"></div>
-  </div>
+  <section id="listar" class="secao" style="display: none;">
+    <h2>Lista de Produtos</h2>
+    <table id="tabelaProdutos">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nome</th><th>Preço</th><th>Quantidade</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
 
-  <!-- Atualizar -->
-  <div class="section" id="atualizar">
+  <section id="atualizar" class="secao" style="display: none;">
     <h2>Atualizar Produto</h2>
-    <form id="formAtualizar">
-      <label>ID do Produto</label>
-      <input type="number" id="idAtualizar" required />
-      <label>Nome</label>
-      <input type="text" id="nomeAtualizar" />
-      <label>Preço</label>
-      <input type="number" id="precoAtualizar" step="0.01" />
-      <label>Quantidade</label>
-      <input type="number" id="quantidadeAtualizar" />
-      <button type="submit" class="submit">Atualizar</button>
-      <p id="mensagemAtualizar" class="message"></p>
-    </form>
-  </div>
+    <select id="produtoSelect">
+      <option value="">Selecione um produto</option>
+    </select>
+    <input type="text" id="novoNome" placeholder="Novo nome" />
+    <input type="number" id="novoPreco" placeholder="Novo preço" step="0.01" />
+    <input type="number" id="novaQtd" placeholder="Nova quantidade" />
+    <button onclick="atualizarProduto()">Atualizar</button>
+    <p id="mensagemAtualizar" class="mensagem"></p>
+  </section>
 
-  <!-- Deletar -->
-  <div class="section" id="deletar">
+  <section id="deletar" class="secao" style="display: none;">
     <h2>Deletar Produto</h2>
-    <input type="number" id="idDeletar" placeholder="ID do Produto" />
-    <button class="submit" onclick="deletarProduto()">Deletar</button>
-    <p id="mensagemDeletar" class="message"></p>
-  </div>
+    <input type="number" id="idDeletar" placeholder="ID do produto" />
+    <button onclick="deletarProduto()">Deletar</button>
+    <p id="mensagemDeletar" class="mensagem"></p>
+  </section>
 
   <script src="script.js"></script>
 </body>

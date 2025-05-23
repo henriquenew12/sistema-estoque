@@ -1,138 +1,116 @@
-// Controle de abas
-const tabs = document.querySelectorAll('nav .tab');
-const sections = document.querySelectorAll('.section');
+let produtosCache = [];
 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const target = tab.getAttribute('data-tab');
-    sections.forEach(sec => {
-      sec.id === target ? sec.classList.add('active') : sec.classList.remove('active');
+function mostrarSecao(secao) {
+  document.querySelectorAll(".secao").forEach(s => s.style.display = "none");
+  document.getElementById(secao).style.display = "block";
+
+  if (secao === "listar") carregarProdutos();
+  if (secao === "atualizar") carregarSelectAtualizacao();
+}
+
+function cadastrarProduto() {
+  const nome = document.getElementById("nome").value;
+  const preco = parseFloat(document.getElementById("preco").value);
+  const quantidade = parseInt(document.getElementById("quantidade").value);
+
+  fetch("http://localhost:8080/produtos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome, preco, quantidade })
+  })
+    .then(res => res.ok ? "Produto cadastrado com sucesso!" : "Erro ao cadastrar produto")
+    .then(msg => {
+      document.getElementById("mensagemCadastro").textContent = msg;
+      document.getElementById("nome").value = "";
+      document.getElementById("preco").value = "";
+      document.getElementById("quantidade").value = "";
     });
-  });
-});
+}
 
-// Função para cadastrar produto
-document.getElementById('formCadastrar').addEventListener('submit', async e => {
-  e.preventDefault();
-  const produto = {
-    nome: document.getElementById('nome').value,
-    preco: parseFloat(document.getElementById('preco').value),
-    quantidade: parseInt(document.getElementById('quantidade').value)
-  };
-
-  try {
-    const res = await fetch('http://localhost:8080/produtos', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(produto)
+function carregarProdutos() {
+  fetch("http://localhost:8080/produtos")
+    .then(res => res.json())
+    .then(produtos => {
+      const tbody = document.querySelector("#tabelaProdutos tbody");
+      tbody.innerHTML = "";
+      produtos.forEach(p => {
+        tbody.innerHTML += `<tr><td>${p.id}</td><td>${p.nome}</td><td>${p.preco}</td><td>${p.quantidade}</td></tr>`;
+      });
     });
+}
 
-    const msg = document.getElementById('mensagemCadastrar');
+function carregarSelectAtualizacao() {
+  fetch("http://localhost:8080/produtos")
+    .then(res => res.json())
+    .then(produtos => {
+      const select = document.getElementById("produtoSelect");
+      select.innerHTML = '<option value="">Selecione um produto</option>';
+      produtosCache = produtos;
 
-    if (res.ok) {
-      msg.textContent = 'Produto cadastrado com sucesso!';
-      e.target.reset();
-    } else {
-      const erro = await res.json();
-      msg.textContent = 'Erro: ' + (erro.erro || 'Erro desconhecido');
-    }
-  } catch (error) {
-    document.getElementById('mensagemCadastrar').textContent = 'Erro na conexão.';
+      produtos.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.id;
+        option.text = `${p.nome} - R$${p.preco} - Qtd: ${p.quantidade}`;
+        select.appendChild(option);
+      });
+    });
+}
+
+document.getElementById("produtoSelect").addEventListener("change", () => {
+  const id = document.getElementById("produtoSelect").value;
+  const produto = produtosCache.find(p => p.id == id);
+  if (produto) {
+    document.getElementById("novoNome").value = produto.nome;
+    document.getElementById("novoPreco").value = produto.preco;
+    document.getElementById("novaQtd").value = produto.quantidade;
   }
 });
 
-// Função para listar produtos
-async function listarProdutos() {
-  const tabela = document.getElementById('tabelaProdutos');
-  tabela.innerHTML = 'Carregando...';
+function atualizarProduto() {
+  const id = document.getElementById("produtoSelect").value;
+  const nome = document.getElementById("novoNome").value;
+  const preco = parseFloat(document.getElementById("novoPreco").value);
+  const quantidade = parseInt(document.getElementById("novaQtd").value);
 
-  try {
-    const res = await fetch('http://localhost:8080/produtos');
-    if (!res.ok) throw new Error('Falha ao buscar produtos');
-    const produtos = await res.json();
+  if (!id) return alert("Selecione um produto");
 
-    if (produtos.length === 0) {
-      tabela.innerHTML = '<p>Nenhum produto cadastrado.</p>';
-      return;
-    }
-
-    let html = '<table><thead><tr><th>ID</th><th>Nome</th><th>Preço</th><th>Quantidade</th></tr></thead><tbody>';
-    produtos.forEach(p => {
-      html += `<tr><td>${p.id}</td><td>${p.nome}</td><td>R$ ${p.preco.toFixed(2)}</td><td>${p.quantidade}</td></tr>`;
+  fetch(`http://localhost:8080/produtos/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome, preco, quantidade })
+  })
+    .then(res => res.ok ? "Produto atualizado com sucesso!" : "Erro ao atualizar produto")
+    .then(msg => {
+      document.getElementById("mensagemAtualizar").textContent = msg;
+      carregarSelectAtualizacao();
     });
-    html += '</tbody></table>';
-    tabela.innerHTML = html;
-  } catch (error) {
-    tabela.innerHTML = '<p>Erro ao carregar produtos.</p>';
+}
+
+function deletarProduto() {
+  const id = document.getElementById("idDeletar").value;
+  if (!id) return alert("Informe o ID do produto");
+
+  if (confirm("Tem certeza que deseja deletar este produto?")) {
+    fetch(`http://localhost:8080/produtos/${id}`, {
+      method: "DELETE"
+    })
+      .then(res => res.ok ? "Produto deletado com sucesso!" : "Erro ao deletar")
+      .then(msg => {
+        document.getElementById("mensagemDeletar").textContent = msg;
+        document.getElementById("idDeletar").value = "";
+        carregarProdutos();
+      });
   }
 }
 
-// Função para atualizar produto
-document.getElementById('formAtualizar').addEventListener('submit', async e => {
-  e.preventDefault();
-  const id = parseInt(document.getElementById('idAtualizar').value);
-  const novosDados = {};
-
-  const nome = document.getElementById('nomeAtualizar').value;
-  if (nome) novosDados.nome = nome;
-  const preco = document.getElementById('precoAtualizar').value;
-  if (preco) novosDados.preco = parseFloat(preco);
-  const quantidade = document.getElementById('quantidadeAtualizar').value;
-  if (quantidade) novosDados.quantidade = parseInt(quantidade);
-
-  if (Object.keys(novosDados).length === 0) {
-    document.getElementById('mensagemAtualizar').textContent = 'Preencha ao menos um campo para atualizar.';
-    return;
-  }
-
-  try {
-    const res = await fetch(`http://localhost:8080/produtos/${id}`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(novosDados)
+function carregarDashboard() {
+  fetch(`${API}/dashboard`)
+    .then(res => res.json())
+    .then(d => {
+      document.getElementById('total-produtos').textContent = d.total_produtos;
+      document.getElementById('quantidade-total').textContent = d.total_quantidade;
+      document.getElementById('valor-total').textContent = d.valor_total_estoque.toFixed(2);
+      document.getElementById('mais-estoque').textContent = `${d.produto_mais_estoque.nome} (${d.produto_mais_estoque.quantidade})`;
+      document.getElementById('menos-estoque').textContent = `${d.produto_menos_estoque.nome} (${d.produto_menos_estoque.quantidade})`;
     });
-    const msg = document.getElementById('mensagemAtualizar');
-
-    if (res.ok) {
-      msg.textContent = 'Produto atualizado com sucesso!';
-      e.target.reset();
-    } else {
-      const erro = await res.json();
-      msg.textContent = 'Erro: ' + (erro.erro || 'Erro desconhecido');
-    }
-  } catch {
-    document.getElementById('mensagemAtualizar').textContent = 'Erro na conexão.';
-  }
-});
-
-// Função para deletar produto
-async function deletarProduto() {
-  const id = parseInt(document.getElementById('idDeletar').value);
-  if (!id) {
-    document.getElementById('mensagemDeletar').textContent = 'Informe um ID válido.';
-    return;
-  }
-
-  if (!confirm(`Confirma a remoção do produto com ID ${id}?`)) {
-    return;
-  }
-
-  try {
-    const res = await fetch(`http://localhost:8080/produtos/${id}`, {
-      method: 'DELETE'
-    });
-    const msg = document.getElementById('mensagemDeletar');
-
-    if (res.ok) {
-      msg.textContent = 'Produto deletado com sucesso!';
-      document.getElementById('idDeletar').value = '';
-    } else {
-      const erro = await res.json();
-      msg.textContent = 'Erro: ' + (erro.erro || 'Erro desconhecido');
-    }
-  } catch {
-    document.getElementById('mensagemDeletar').textContent = 'Erro na conexão.';
-  }
 }
