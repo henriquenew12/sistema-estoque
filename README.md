@@ -4,13 +4,8 @@ Sistema para controle simples de estoque com ações de adição, atualização 
 
 # Tecnologias
 
-## Backend
-
-- Golang
-
-## Frontend
-
-- Vue.js
+- Backend construído com Golang + Gin + ORM
+- Frontend construído com HTML, CSS e Javascript puro
 
 # Como usar
 
@@ -18,7 +13,7 @@ Sistema para controle simples de estoque com ações de adição, atualização 
 
 | Método | Rota | Função |
 | ------ | ---- | ------ |
-| POST | /produtos | Criar produto
-| GET | /produtos | Listar produtos
-| PUT | /produtos/:id | Atualizar produto
-| DELETE | /produtos/:id | Deletar produto
+| POST | /produtos | Criar produto |
+| GET | /produtos | Listar produtos |
+| PUT | /produtos/{id} | Atualizar produto |
+| DELETE | /produtos/{id} | Deletar produto |
